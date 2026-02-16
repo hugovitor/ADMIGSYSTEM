@@ -39,7 +39,6 @@ import {
   Edit,
   Delete,
   Visibility,
-  TrendingUp,
   People,
   MonetizationOn,
   EmojiEvents,
@@ -292,7 +291,7 @@ const JiuJitsu: React.FC = () => {
       )}
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
+        <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)}>
           <Tab label="Alunos" />
           <Tab label="Estatísticas" />
         </Tabs>

@@ -285,7 +285,7 @@ const ChildPresentations: React.FC = () => {
       )}
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
+        <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)}>
           <Tab label="Apresentações" />
           <Tab label="Estatísticas" />
         </Tabs>

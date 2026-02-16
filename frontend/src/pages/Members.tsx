@@ -47,7 +47,7 @@ import {
   Church,
   FamilyRestroom,
 } from '@mui/icons-material';
-import { memberService, Member, MemberDetail, MemberStats, FamilyMember } from '../services/memberService';
+import { memberService, Member, MemberDetail, MemberStats } from '../services/memberService';
 
 interface TabPanelProps {
   children?: React.ReactNode;

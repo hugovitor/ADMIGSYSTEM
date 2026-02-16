@@ -44,9 +44,9 @@ Para evitar problemas futuros, use **PostgreSQL** do Render:
 O PostgreSQL é mais estável que SQLite em ambientes como Docker/Render.
 
 ## 📱 **URLs do seu app**:
-- **API**: `https://church-management-backend.onrender.com/api`
-- **Swagger**: `https://church-management-backend.onrender.com/swagger`
-- **Formulário**: `https://church-management-backend.onrender.com/preregistration.html`
+- **API**: `https://church-management-backend-7owp.onrender.com/api`
+- **Swagger**: `https://church-management-backend-7owp.onrender.com/swagger`
+- **Formulário**: `https://church-management-backend-7owp.onrender.com/preregistration.html`
 
 **Login padrão após correção**:
 - Email: `admin@igreja.com`
