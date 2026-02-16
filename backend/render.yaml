@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: church-management-backend
+    env: docker
+    repo: https://github.com/seu-usuario/ADMIGSYSTEM
+    rootDir: ./backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    buildCommand: chmod +x ./build.sh && ./build.sh
+    startCommand: chmod +x ./start.sh && ./start.sh
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: PORT
+        value: 10000
+      - key: JwtSettings__SecretKey
+        value: MinhaChaveSuperSecretaQueDesejo2024!
+      - key: JwtSettings__Issuer  
+        value: ChurchManagementAPI
+      - key: JwtSettings__Audience
+        value: ChurchManagementUsers

@@ -1,7 +1,15 @@
 import axios from 'axios';
 
+// Dynamic API URL based on environment
+const getApiBaseUrl = () => {
+  if (import.meta.env.PROD) {
+    return import.meta.env.VITE_API_URL || 'https://your-render-app.onrender.com/api';
+  }
+  return 'http://localhost:5000/api';
+};
+
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },

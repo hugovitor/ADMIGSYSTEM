@@ -355,8 +355,10 @@
     </div>
 
     <script>
-        // API Configuration
-        const API_BASE_URL = 'http://localhost:5000/api';
+        // API Configuration - Dynamic URL based on current host
+        const API_BASE_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api' 
+            : `${window.location.protocol}//${window.location.host}/api`;
         
         // DOM Elements
         const form = document.getElementById('preRegistrationForm');
