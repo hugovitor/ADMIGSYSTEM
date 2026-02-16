@@ -7,30 +7,51 @@ public static class DbInitializer
 {
     public static async Task SeedData(AppDbContext context)
     {
-        // Check if admin user already exists
-        if (await context.Users.AnyAsync(u => u.Email == "admin@igreja.com"))
+        try
         {
-            // Fix PaymentStatus for existing JiuJitsu students with empty PaymentStatus
-            await FixJiuJitsuStudentData(context);
-            return;
+            // Ensure the database and tables exist
+            await context.Database.EnsureCreatedAsync();
+            
+            // Check if admin user already exists
+            if (await context.Users.AnyAsync(u => u.Email == "admin@igreja.com"))
+            {
+                // Fix PaymentStatus for existing JiuJitsu students with empty PaymentStatus
+                await FixJiuJitsuStudentData(context);
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error checking existing users: {ex.Message}");
+            // Continue with seeding even if check fails
         }
         
-        // Create default admin user
-        var adminUser = new User
+        try
         {
-            Name = "Administrador",
-            Email = "admin@igreja.com",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
-            Role = "Admin",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
+            // Create default admin user
+            var adminUser = new User
+            {
+                Name = "Administrador",
+                Email = "admin@igreja.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                Role = "Admin",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            context.Users.Add(adminUser);
+            await context.SaveChangesAsync();
         
-        context.Users.Add(adminUser);
-        await context.SaveChangesAsync();
-        
-        // Fix PaymentStatus for existing JiuJitsu students
-        await FixJiuJitsuStudentData(context);
+            // Fix PaymentStatus for existing JiuJitsu students
+            await FixJiuJitsuStudentData(context);
+            
+            Console.WriteLine("Admin user created successfully!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating admin user: {ex.Message}");
+            // Continue execution - app should still work even if seeding fails
+        }
     }
 
     private static async Task FixJiuJitsuStudentData(AppDbContext context)

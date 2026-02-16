@@ -83,3 +83,29 @@ VITE_API_URL=https://church-management-backend.onrender.com/api
 2. **CORS Error**: Atualize `AllowedOrigins` no backend
 3. **Database Error**: Verifique `DATABASE_URL` no Render
 4. **Build Error**: Confirme que todas as dependências estão no `package.json`
+5. **Migration Error "no such table"**: 
+   - Verifique se DATABASE_URL está configurada no Render
+   - Se usar SQLite, delete e redesploy o serviço
+   - Recomendado: Use PostgreSQL do Render (mais estável)
+
+## 🐛 Erro Comum: "SQLite Error 1: 'no such table: Users'"
+
+**Causa**: Migrações não aplicadas corretamente durante o deploy.
+
+**Solução Rápida**:
+1. No Render Dashboard, vá em seu serviço
+2. Vá em "Environment" 
+3. Adicione uma nova variável:
+   - **Name**: `FORCE_DB_CREATE`
+   - **Value**: `true`
+4. Clique "Save Changes" e o serviço será redesployed
+5. Após sucesso, **remova** essa variável
+
+**Solução Recomendada** (PostgreSQL):
+1. No Render Dashboard, clique "New +" → "PostgreSQL"
+2. Crie um banco gratuito
+3. Copie a **External Connection String**
+4. No seu Web Service → Environment, adicione:
+   - **Name**: `DATABASE_URL`
+   - **Value**: `postgresql://user:password@hostname:port/database`
+5. Redesploy o serviço

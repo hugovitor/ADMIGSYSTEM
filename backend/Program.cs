@@ -172,7 +172,29 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await context.Database.MigrateAsync();
+    
+    // Check if we should force database creation (for deployment troubleshooting)
+    var forceDbCreate = Environment.GetEnvironmentVariable("FORCE_DB_CREATE");
+    
+    if (forceDbCreate == "true")
+    {
+        Console.WriteLine("FORCE_DB_CREATE=true detected. Creating database...");
+        await context.Database.EnsureCreatedAsync();
+    }
+    else
+    {
+        try
+        {
+            await context.Database.MigrateAsync();
+        }
+        catch (Exception ex)
+        {
+            // Fallback: If migrations fail, ensure database is created
+            Console.WriteLine($"Migration failed: {ex.Message}. Attempting to create database...");
+            await context.Database.EnsureCreatedAsync();
+        }
+    }
+    
     await DbInitializer.SeedData(context);
 }
 
