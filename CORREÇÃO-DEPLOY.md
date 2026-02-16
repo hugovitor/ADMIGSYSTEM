@@ -2,21 +2,22 @@
 
 ## ✅ **SOLUÇÃO RÁPIDA** (Para aplicar AGORA):
 
-### OPÇÃO 1: **Force Database Reset** (Recomendado para erro 500)
-1. Vá para seu serviço `church-management-backend-7owp`
-2. Clique na aba **"Environment"**
-3. Clique **"Add Environment Variable"** 
-4. Adicione:
-   - **Name**: `RESET_DATABASE`
-   - **Value**: `true`
-5. Clique **"Save Changes"**
+### **SOLUÇÃO IMEDIATA**: Force SQLite (Mais confiável)  
+1. Vá para `church-management-backend-7owp`
+2. **Environment** → **Add Environment Variable**  
+3. Adicione AMBAS as variáveis:
+   - **Name**: `FORCE_SQLITE` | **Value**: `true`
+   - **Name**: `FORCE_DB_CREATE` | **Value**: `true`  
+4. **Se existir `DATABASE_URL`**: **DELETE** temporariamente para evitar confusão
+5. **Save Changes**
 
-### OPÇÃO 2: **Se ainda não funcionou**
-Adicione outra variável:
-   - **Name**: `FORCE_DB_CREATE`
-   - **Value**: `true`
+**Resultado**: SQLite funcionando em 2 minutos! 🚀
 
-O serviço será automaticamente redesployado e deve funcionar! ✅
+### **DEPOIS (Opcional)**: Migrar para PostgreSQL
+1. Remova `FORCE_SQLITE` e `FORCE_DB_CREATE` 
+2. Crie PostgreSQL no Render (New + → PostgreSQL)
+3. Configure `DATABASE_URL` com a External Connection String
+4. Adicione `RESET_DATABASE=true` temporariamente
 
 ## 🔄 **Após o sucesso**:
 **IMPORTANTE**: Remova a variável `FORCE_DB_CREATE` após confirmar que funciona, para não recriar o banco sempre.

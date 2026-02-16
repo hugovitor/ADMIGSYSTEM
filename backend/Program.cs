@@ -56,17 +56,31 @@ builder.Services.AddSwaggerGen(options =>
 // Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+var forceSlite = Environment.GetEnvironmentVariable("FORCE_SQLITE");
 
-if (builder.Environment.IsProduction() && !string.IsNullOrEmpty(databaseUrl))
+Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
+Console.WriteLine($"DATABASE_URL exists: {!string.IsNullOrEmpty(databaseUrl)}");
+Console.WriteLine($"FORCE_SQLITE: {forceSlite}");
+
+if (forceSlite == "true" || string.IsNullOrEmpty(databaseUrl))
 {
-    // Use PostgreSQL in production (Railway/Heroku)
+    // Use SQLite (for development or forced)
+    Console.WriteLine($"Using SQLite - Connection: {connectionString}");
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite(connectionString));
+}
+else if (builder.Environment.IsProduction() && !string.IsNullOrEmpty(databaseUrl))
+{
+    // Use PostgreSQL in production 
+    Console.WriteLine("Using PostgreSQL in production");
     connectionString = ConvertPostgresUrl(databaseUrl);
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(connectionString));
 }
 else
 {
-    // Use SQLite for development
+    // Default to SQLite
+    Console.WriteLine($"Using SQLite (default) - Connection: {connectionString}");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlite(connectionString));
 }
@@ -176,6 +190,9 @@ using (var scope = app.Services.CreateScope())
     // Check if we should reset database completely (for troubleshooting)
     var resetDatabase = Environment.GetEnvironmentVariable("RESET_DATABASE");
     var forceDbCreate = Environment.GetEnvironmentVariable("FORCE_DB_CREATE");
+    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+    
+    Console.WriteLine($"Database initialization - Reset: {resetDatabase}, Force: {forceDbCreate}, HasDatabaseUrl: {!string.IsNullOrEmpty(databaseUrl)}");
     
     try
     {
@@ -185,23 +202,47 @@ using (var scope = app.Services.CreateScope())
             await context.Database.EnsureDeletedAsync();
             await context.Database.EnsureCreatedAsync();
         }
-        else if (forceDbCreate == "true")
+        else if (forceDbCreate == "true" || string.IsNullOrEmpty(databaseUrl))
         {
-            Console.WriteLine("FORCE_DB_CREATE=true detected. Creating database...");
+            Console.WriteLine($"Force creating database. Reason: ForceCreate={forceDbCreate}, NoDatabaseUrl={string.IsNullOrEmpty(databaseUrl)}");
             await context.Database.EnsureCreatedAsync();
         }
         else
         {
+            Console.WriteLine("Running migrations...");
             await context.Database.MigrateAsync();
         }
+        
+        Console.WriteLine("Database setup completed successfully.");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Database setup failed: {ex.Message}. Attempting to create database...");
-        await context.Database.EnsureCreatedAsync();
+        Console.WriteLine($"Database setup failed: {ex.Message}.");
+        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        
+        try
+        {
+            Console.WriteLine("Attempting fallback: EnsureCreated...");
+            await context.Database.EnsureCreatedAsync();
+            Console.WriteLine("Fallback successful.");
+        }
+        catch (Exception fallbackEx)
+        {
+            Console.WriteLine($"Fallback also failed: {fallbackEx.Message}");
+            throw; // Re-throw the original exception
+        }
     }
     
-    await DbInitializer.SeedData(context);
+    try
+    {
+        await DbInitializer.SeedData(context);
+        Console.WriteLine("Database seeding completed.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Database seeding failed: {ex.Message}");
+        // Don't throw here - app can still work without seeded data
+    }
 }
 
 // Configure port for deployment
@@ -213,12 +254,26 @@ app.Run();
 // Helper method to convert DATABASE_URL to PostgreSQL connection string
 static string ConvertPostgresUrl(string databaseUrl)
 {
-    var uri = new Uri(databaseUrl);
-    var db = uri.AbsolutePath.Trim('/');
-    var user = uri.UserInfo.Split(':')[0];
-    var password = uri.UserInfo.Split(':')[1];
-    var host = uri.Host;
-    var port = uri.Port;
-    
-    return $"Host={host};Port={port};Database={db};Username={user};Password={password};SSL Mode=Require;Trust Server Certificate=true";
+    try
+    {
+        Console.WriteLine($"Converting DATABASE_URL: {databaseUrl}");
+        
+        var uri = new Uri(databaseUrl);
+        var db = uri.AbsolutePath.Trim('/');
+        var userInfo = uri.UserInfo.Split(':');
+        var user = userInfo[0];
+        var password = userInfo.Length > 1 ? userInfo[1] : "";
+        var host = uri.Host;
+        var port = uri.Port > 0 ? uri.Port : 5432; // Default PostgreSQL port
+        
+        var connectionString = $"Host={host};Port={port};Database={db};Username={user};Password={password};SSL Mode=Require;Trust Server Certificate=true";
+        Console.WriteLine($"Generated connection string: Host={host};Port={port};Database={db};Username={user};Password=***");
+        
+        return connectionString;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error converting DATABASE_URL: {ex.Message}");
+        throw new InvalidOperationException($"Failed to parse DATABASE_URL: {ex.Message}", ex);
+    }
 }
