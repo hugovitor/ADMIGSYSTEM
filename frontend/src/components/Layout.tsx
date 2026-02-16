@@ -29,6 +29,8 @@ import {
   AccountCircle,
   Church,
   Logout,
+  People,
+  ChildCare,
 } from '@mui/icons-material';
 import { authService } from '../services/authService';
 
@@ -65,6 +67,8 @@ const Layout: React.FC = () => {
     { text: 'Escola de Música', icon: <MusicNote />, path: '/music-school' },
     { text: 'Escola de Jiu-Jitsu', icon: <SportsKabaddi />, path: '/jiu-jitsu' },
     { text: 'Grupo de Homens', icon: <Groups />, path: '/mens-group' },
+    { text: 'Membros', icon: <People />, path: '/members' },
+    { text: 'Apresentação de Crianças', icon: <ChildCare />, path: '/child-presentations' },
   ];
 
   if (authService.isAdmin()) {

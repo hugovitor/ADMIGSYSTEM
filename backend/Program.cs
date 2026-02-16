@@ -83,6 +83,7 @@ builder.Services.AddAuthorization();
 
 // Services
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<PdfService>();
 
 // CORS
 builder.Services.AddCors(options =>
@@ -121,6 +122,9 @@ app.UseSwaggerUI(options =>
 });
 
 app.UseCors("AllowFrontend");
+
+// Configurar arquivos estáticos
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();

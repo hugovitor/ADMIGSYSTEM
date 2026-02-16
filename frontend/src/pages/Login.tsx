@@ -107,7 +107,7 @@ const Login: React.FC = () => {
               textShadow: '0 2px 4px rgba(0,0,0,0.3)',
             }}
           >
-            Sistema de Gerenciamento
+            ADMIGVIPI SYSTEM
           </Typography>
           <Typography 
             variant="h6" 
@@ -117,7 +117,7 @@ const Login: React.FC = () => {
               mt: 1,
             }}
           >
-            Igreja
+            Assembleia de Deus Ministério do Gusrá  Em Vicente Pires
           </Typography>
         </Box>
 
@@ -203,12 +203,12 @@ const Login: React.FC = () => {
               textAlign: 'center',
             }}
           >
-            <Typography variant="caption" color="text.secondary" display="block">
+            {/* <Typography variant="caption" color="text.secondary" display="block">
               Credenciais padrão
             </Typography>
             <Typography variant="body2" color="text.primary" sx={{ mt: 0.5 }}>
               <strong>admin@igreja.com</strong> / <strong>Admin@123</strong>
-            </Typography>
+            </Typography> */}
           </Box>
         </Paper>
       </Container>

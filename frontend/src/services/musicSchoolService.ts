@@ -36,6 +36,41 @@ export interface MusicSchoolStats {
   studentsWithPendingPayment: number;
 }
 
+export interface MusicSchoolPreRegistration {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  birthDate?: string;
+  parentName?: string;
+  parentEmail?: string;
+  parentPhone?: string;
+  instrument: string;
+  level: string;
+  preferredClassType: string;
+  preferredSchedule?: string;
+  hasMusicalExperience: boolean;
+  musicalExperience?: string;
+  questions?: string;
+  preRegistrationDate: string;
+  status: string;
+  contactDate?: string;
+  adminNotes?: string;
+  isProcessed: boolean;
+}
+
+export interface UpdatePreRegistrationRequest {
+  status: string;
+  adminNotes?: string;
+  isProcessed: boolean;
+}
+
+export interface ConvertPreRegistrationRequest {
+  teacher?: string;
+  classSchedule?: string;
+  monthlyFee: number;
+}
+
 export const musicSchoolService = {
   getAll: async (): Promise<MusicSchoolStudent[]> => {
     const response = await api.get<MusicSchoolStudent[]>('/musicschool');
@@ -71,5 +106,20 @@ export const musicSchoolService = {
 
   registerAttendance: async (id: number): Promise<void> => {
     await api.post(`/musicschool/${id}/attendance`);
+  },
+
+  // Endpoints para gerenciar pré-matrículas
+  getPreRegistrations: async (): Promise<MusicSchoolPreRegistration[]> => {
+    const response = await api.get<MusicSchoolPreRegistration[]>('/musicschool/pre-registrations');
+    return response.data;
+  },
+
+  updatePreRegistration: async (id: number, data: UpdatePreRegistrationRequest): Promise<void> => {
+    await api.put(`/musicschool/pre-registrations/${id}`, data);
+  },
+
+  convertPreRegistration: async (id: number, data: ConvertPreRegistrationRequest): Promise<MusicSchoolStudent> => {
+    const response = await api.post<MusicSchoolStudent>(`/musicschool/pre-registrations/${id}/convert`, data);
+    return response.data;
   },
 };

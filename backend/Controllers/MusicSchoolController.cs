@@ -245,4 +245,157 @@ public class MusicSchoolController : ControllerBase
         
         return NoContent();
     }
+
+    // Endpoints para gerenciar pré-matrículas
+
+    /// <summary>
+    /// Lista todas as pré-matrículas
+    /// </summary>
+    /// <returns>Lista de pré-matrículas</returns>
+    [HttpGet("pre-registrations")]
+    [ProducesResponseType(typeof(IEnumerable<MusicSchoolPreRegistrationResponseDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<MusicSchoolPreRegistrationResponseDto>>> GetPreRegistrations()
+    {
+        var preRegistrations = await _context.MusicSchoolPreRegistrations
+            .OrderByDescending(p => p.PreRegistrationDate)
+            .ToListAsync();
+
+        var response = preRegistrations.Select(p => new MusicSchoolPreRegistrationResponseDto
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Email = p.Email,
+            Phone = p.Phone,
+            BirthDate = p.BirthDate,
+            ParentName = p.ParentName,
+            ParentEmail = p.ParentEmail,
+            ParentPhone = p.ParentPhone,
+            Address = p.Address,
+            Neighborhood = p.Neighborhood,
+            City = p.City,
+            State = p.State,
+            ZipCode = p.ZipCode,
+            Instrument = p.Instrument,
+            Level = p.Level,
+            PreferredClassType = p.PreferredClassType,
+            PreferredSchedule = p.PreferredSchedule,
+            HasMusicalExperience = p.HasMusicalExperience,
+            MusicalExperience = p.MusicalExperience,
+            Questions = p.Questions,
+            PreRegistrationDate = p.PreRegistrationDate,
+            Status = p.Status,
+            ContactDate = p.ContactDate,
+            AdminNotes = p.AdminNotes,
+            IsProcessed = p.IsProcessed
+        });
+
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Atualiza o status e observações de uma pré-matrícula
+    /// </summary>
+    /// <param name="id">ID da pré-matrícula</param>
+    /// <param name="request">Dados de atualização</param>
+    /// <returns>Sem conteúdo</returns>
+    [HttpPut("pre-registrations/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdatePreRegistration(int id, [FromBody] UpdatePreRegistrationRequest request)
+    {
+        var preRegistration = await _context.MusicSchoolPreRegistrations.FindAsync(id);
+        
+        if (preRegistration == null)
+        {
+            return NotFound();
+        }
+
+        preRegistration.Status = request.Status;
+        preRegistration.AdminNotes = request.AdminNotes;
+        preRegistration.IsProcessed = request.IsProcessed;
+        
+        if (request.Status == "Contatado" && preRegistration.ContactDate == null)
+        {
+            preRegistration.ContactDate = DateTime.UtcNow;
+        }
+
+        await _context.SaveChangesAsync();
+        
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Converte uma pré-matrícula em matrícula oficial
+    /// </summary>
+    /// <param name="id">ID da pré-matrícula</param>
+    /// <param name="request">Dados da matrícula</param>
+    /// <returns>Dados do novo aluno</returns>
+    [HttpPost("pre-registrations/{id}/convert")]
+    [ProducesResponseType(typeof(MusicSchoolStudent), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<MusicSchoolStudent>> ConvertPreRegistration(int id, [FromBody] ConvertPreRegistrationRequest request)
+    {
+        var preRegistration = await _context.MusicSchoolPreRegistrations.FindAsync(id);
+        
+        if (preRegistration == null)
+        {
+            return NotFound();
+        }
+
+        // Verificar se já existe um aluno com o mesmo email
+        var existingStudent = await _context.MusicSchoolStudents
+            .FirstOrDefaultAsync(s => s.Email.ToLower() == preRegistration.Email.ToLower());
+            
+        if (existingStudent != null)
+        {
+            return BadRequest(new { message = "Já existe um aluno cadastrado com este email." });
+        }
+
+        // Criar novo aluno
+        var student = new MusicSchoolStudent
+        {
+            Name = preRegistration.Name,
+            Email = preRegistration.Email,
+            Phone = preRegistration.Phone,
+            BirthDate = preRegistration.BirthDate,
+            ParentName = preRegistration.ParentName,
+            ParentPhone = preRegistration.ParentPhone,
+            Instrument = preRegistration.Instrument,
+            Level = preRegistration.Level,
+            Teacher = request.Teacher,
+            ClassType = preRegistration.PreferredClassType,
+            ClassSchedule = request.ClassSchedule ?? preRegistration.PreferredSchedule,
+            MonthlyFee = request.MonthlyFee,
+            PaymentStatus = "Em dia",
+            EnrollmentDate = DateTime.UtcNow,
+            IsActive = true,
+            Status = "Ativo",
+            Notes = preRegistration.Questions
+        };
+
+        _context.MusicSchoolStudents.Add(student);
+        
+        // Atualizar pré-matrícula
+        preRegistration.Status = "Matriculado";
+        preRegistration.IsProcessed = true;
+        
+        await _context.SaveChangesAsync();
+        
+        return CreatedAtAction(nameof(GetStudent), new { id = student.Id }, student);
+    }
+}
+
+public class UpdatePreRegistrationRequest
+{
+    public string Status { get; set; } = string.Empty;
+    public string? AdminNotes { get; set; }
+    public bool IsProcessed { get; set; }
+}
+
+public class ConvertPreRegistrationRequest
+{
+    public string? Teacher { get; set; }
+    public string? ClassSchedule { get; set; }
+    public decimal MonthlyFee { get; set; }
 }

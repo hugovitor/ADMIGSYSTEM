@@ -10,7 +10,7 @@ const Dashboard: React.FC = () => {
 
   const modules = [
     {
-      title: 'Escola de Música',
+      title: 'Escola de Música Som do Céu',
       description: 'Gerenciamento de alunos da escola de música',
       icon: <MusicNote sx={{ fontSize: 48 }} />,
       color: theme.palette.secondary.main,

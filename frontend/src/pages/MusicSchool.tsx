@@ -44,6 +44,7 @@ import {
   Person,
 } from '@mui/icons-material';
 import { musicSchoolService, MusicSchoolStudent, MusicSchoolStats } from '../services/musicSchoolService';
+import PreRegistrationManagement from '../components/PreRegistrationManagement';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -95,6 +96,7 @@ const MusicSchoolPage: React.FC = () => {
   const [filterLevel, setFilterLevel] = useState('');
   const [filterPaymentStatus, setFilterPaymentStatus] = useState('');
   const [tabValue, setTabValue] = useState(0);
+  const [mainTabValue, setMainTabValue] = useState(0); // Tab principal: 0 = Alunos, 1 = Pré-matrículas
 
   useEffect(() => {
     loadStudents();
@@ -323,7 +325,7 @@ const MusicSchoolPage: React.FC = () => {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.primary.main }}>
           <MusicNote sx={{ mr: 1, verticalAlign: 'middle' }} />
-          Escola de Música
+          Escola de Música Som do Céu
         </Typography>
         <Button
           variant="contained"
@@ -335,6 +337,16 @@ const MusicSchoolPage: React.FC = () => {
         </Button>
       </Box>
 
+      {/* Abas principais */}
+      <Tabs 
+        value={mainTabValue} 
+        onChange={(_, newValue) => setMainTabValue(newValue)} 
+        sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
+      >
+        <Tab icon={<School />} label="Alunos" />
+        <Tab icon={<Person />} label="Pré-matrículas" />
+      </Tabs>
+
       {error && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
           {error}
@@ -345,6 +357,9 @@ const MusicSchoolPage: React.FC = () => {
           {success}
         </Alert>
       )}
+
+      <TabPanel value={mainTabValue} index={0}>
+        {/* Conteúdo da aba de Alunos */}
 
       {/* Dashboard de Estatísticas */}
       {stats && (
@@ -594,6 +609,13 @@ const MusicSchoolPage: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      
+      </TabPanel>
+
+      <TabPanel value={mainTabValue} index={1}>
+        {/* Conteúdo da aba de Pré-matrículas */}
+        <PreRegistrationManagement onRefresh={() => { loadStats(); }} />
+      </TabPanel>
 
       {/* Dialog de Edição/Criação */}
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>

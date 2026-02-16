@@ -6,6 +6,9 @@ import MusicSchool from './pages/MusicSchool';
 import JiuJitsu from './pages/JiuJitsu';
 import MensGroup from './pages/MensGroup';
 import Users from './pages/Users';
+import Members from './pages/Members';
+import ChildPresentations from './pages/ChildPresentations';
+import MusicSchoolPreRegistration from './pages/MusicSchoolPreRegistration';
 import Layout from './components/Layout';
 import PrivateRoute from './components/PrivateRoute';
 import { authService } from './services/authService';
@@ -151,6 +154,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/music-school/pre-registration" element={<MusicSchoolPreRegistration />} />
           <Route
             path="/"
             element={
@@ -163,6 +167,8 @@ function App() {
             <Route path="music-school" element={<MusicSchool />} />
             <Route path="jiu-jitsu" element={<JiuJitsu />} />
             <Route path="mens-group" element={<MensGroup />} />
+            <Route path="members" element={<Members />} />
+            <Route path="child-presentations" element={<ChildPresentations />} />
             {authService.isAdmin() && <Route path="users" element={<Users />} />}
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
