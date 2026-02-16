@@ -34,23 +34,46 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto request)
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Email == request.Email && u.IsActive);
+        try
+        {
+            Console.WriteLine($"Login attempt for email: {request.Email}");
             
-        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-        {
-            return Unauthorized(new { message = "Email ou senha inválidos" });
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == request.Email && u.IsActive);
+                
+            if (user == null)
+            {
+                Console.WriteLine($"User not found or inactive: {request.Email}");
+                return Unauthorized(new { message = "Email ou senha inválidos" });
+            }
+            
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            {
+                Console.WriteLine($"Password verification failed for user: {request.Email}");
+                return Unauthorized(new { message = "Email ou senha inválidos" });
+            }
+            
+            var token = _jwtService.GenerateToken(user);
+            Console.WriteLine($"Login successful for user: {request.Email}");
+            
+            return Ok(new LoginResponseDto
+            {
+                Token = token,
+                Name = user.Name,
+                Email = user.Email,
+                Role = user.Role
+            });
         }
-        
-        var token = _jwtService.GenerateToken(user);
-        
-        return Ok(new LoginResponseDto
+        catch (Exception ex)
         {
-            Token = token,
-            Name = user.Name,
-            Email = user.Email,
-            Role = user.Role
-        });
+            Console.WriteLine($"Login error: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            
+            return StatusCode(500, new { 
+                message = "Erro interno do servidor", 
+                error = ex.Message 
+            });
+        }
     }
     
     /// <summary>
@@ -63,5 +86,34 @@ public class AuthController : ControllerBase
     public IActionResult ValidateToken()
     {
         return Ok(new { message = "Token válido" });
+    }
+    
+    /// <summary>
+    /// Debug endpoint - verifica se usuário admin existe
+    /// </summary>
+    [HttpGet("debug/admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> CheckAdminUser()
+    {
+        try
+        {
+            var userCount = await _context.Users.CountAsync();
+            var adminUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == "admin@igreja.com");
+            
+            return Ok(new { 
+                message = "Database status",
+                totalUsers = userCount,
+                adminExists = adminUser != null,
+                adminActive = adminUser?.IsActive ?? false,
+                adminEmail = adminUser?.Email ?? "not found"
+            });
+        }
+        catch (Exception ex)
+        {
+            return Ok(new { 
+                message = "Database error",
+                error = ex.Message
+            });
+        }
     }
 }

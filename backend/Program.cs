@@ -173,26 +173,32 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     
-    // Check if we should force database creation (for deployment troubleshooting)
+    // Check if we should reset database completely (for troubleshooting)
+    var resetDatabase = Environment.GetEnvironmentVariable("RESET_DATABASE");
     var forceDbCreate = Environment.GetEnvironmentVariable("FORCE_DB_CREATE");
     
-    if (forceDbCreate == "true")
+    try
     {
-        Console.WriteLine("FORCE_DB_CREATE=true detected. Creating database...");
-        await context.Database.EnsureCreatedAsync();
-    }
-    else
-    {
-        try
+        if (resetDatabase == "true")
+        {
+            Console.WriteLine("RESET_DATABASE=true detected. Deleting and recreating database...");
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
+        }
+        else if (forceDbCreate == "true")
+        {
+            Console.WriteLine("FORCE_DB_CREATE=true detected. Creating database...");
+            await context.Database.EnsureCreatedAsync();
+        }
+        else
         {
             await context.Database.MigrateAsync();
         }
-        catch (Exception ex)
-        {
-            // Fallback: If migrations fail, ensure database is created
-            Console.WriteLine($"Migration failed: {ex.Message}. Attempting to create database...");
-            await context.Database.EnsureCreatedAsync();
-        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Database setup failed: {ex.Message}. Attempting to create database...");
+        await context.Database.EnsureCreatedAsync();
     }
     
     await DbInitializer.SeedData(context);

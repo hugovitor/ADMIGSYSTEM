@@ -56,7 +56,7 @@ npx vercel --prod
 
 ### 2. Variáveis de Ambiente no Vercel:
 ```bash
-VITE_API_URL=https://church-management-backend.onrender.com/api
+VITE_API_URL=https://church-management-backend-7owp.onrender.com/api
 ```
 
 ## 🔗 Configuração Final
@@ -67,10 +67,11 @@ VITE_API_URL=https://church-management-backend.onrender.com/api
 4. **Redeployar o backend** no Render
 
 ## 📱 URLs Finais
-- **Frontend**: `https://seu-app.vercel.app`
-- **Backend API**: `https://seu-app.onrender.com/api`
-- **Formulário Público**: `https://seu-app.onrender.com/preregistration.html`
-- **Swagger**: `https://seu-app.onrender.com/swagger`
+- **Backend**: `https://church-management-backend-7owp.onrender.com`
+- **Backend API**: `https://church-management-backend-7owp.onrender.com/api`
+- **Formulário Público**: `https://church-management-backend-7owp.onrender.com/preregistration.html`
+- **Swagger**: `https://church-management-backend-7owp.onrender.com/swagger`
+- **Frontend**: `https://seu-app.vercel.app` (após deploy no Vercel)
 
 ## ⚠️ Notas Importantes
 - **Render free tier**: Hiberna após 15min de inatividade

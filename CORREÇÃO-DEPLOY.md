@@ -2,14 +2,19 @@
 
 ## ✅ **SOLUÇÃO RÁPIDA** (Para aplicar AGORA):
 
-### 1. **No Render Dashboard**:
-1. Vá para seu serviço `church-management-backend`
+### OPÇÃO 1: **Force Database Reset** (Recomendado para erro 500)
+1. Vá para seu serviço `church-management-backend-7owp`
 2. Clique na aba **"Environment"**
-3. Clique **"Add Environment Variable"**
+3. Clique **"Add Environment Variable"** 
 4. Adicione:
-   - **Name**: `FORCE_DB_CREATE`
+   - **Name**: `RESET_DATABASE`
    - **Value**: `true`
 5. Clique **"Save Changes"**
+
+### OPÇÃO 2: **Se ainda não funcionou**
+Adicione outra variável:
+   - **Name**: `FORCE_DB_CREATE`
+   - **Value**: `true`
 
 O serviço será automaticamente redesployado e deve funcionar! ✅
 
