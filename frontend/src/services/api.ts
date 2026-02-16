@@ -2,11 +2,15 @@ import axios from 'axios';
 
 // Dynamic API URL based on environment
 const getApiBaseUrl = () => {
-  // @ts-ignore - Vite env types
-  if (import.meta.env?.PROD) {
-    // @ts-ignore - Vite env types
-    return import.meta.env?.VITE_API_URL || 'https://church-management-backend-7owp.onrender.com/api';
+  // Check if we're in production by looking at the hostname
+  const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+  
+  // In production, use the backend URL
+  if (isProduction) {
+    return 'https://church-management-backend-7owp.onrender.com/api';
   }
+  
+  // In development, use localhost
   return 'http://localhost:5000/api';
 };
 
