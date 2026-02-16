@@ -190,7 +190,6 @@ using (var scope = app.Services.CreateScope())
     // Check if we should reset database completely (for troubleshooting)
     var resetDatabase = Environment.GetEnvironmentVariable("RESET_DATABASE");
     var forceDbCreate = Environment.GetEnvironmentVariable("FORCE_DB_CREATE");
-    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
     
     Console.WriteLine($"Database initialization - Reset: {resetDatabase}, Force: {forceDbCreate}, HasDatabaseUrl: {!string.IsNullOrEmpty(databaseUrl)}");
     
