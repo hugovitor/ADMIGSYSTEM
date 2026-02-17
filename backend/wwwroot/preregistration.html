@@ -356,9 +356,21 @@
 
     <script>
         // API Configuration - Dynamic URL based on current host
-        const API_BASE_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:5000/api' 
-            : `${window.location.protocol}//${window.location.host}/api`;
+        let API_BASE_URL;
+        
+        if (window.location.hostname === 'localhost') {
+            API_BASE_URL = 'http://localhost:5000/api';
+        } else {
+            // For production - use same protocol and host + /api
+            API_BASE_URL = `${window.location.origin}/api`;
+        }
+        
+        // Debug: Log the API_BASE_URL to console
+        console.log('API_BASE_URL:', API_BASE_URL);
+        console.log('window.location.origin:', window.location.origin);
+        console.log('window.location.hostname:', window.location.hostname);
+        console.log('window.location.protocol:', window.location.protocol);
+        console.log('window.location.host:', window.location.host);
         
         // DOM Elements
         const form = document.getElementById('preRegistrationForm');
@@ -469,13 +481,30 @@
                     questions: formData.get('questions') || null
                 };
                 
-                const response = await fetch(`${API_BASE_URL}/preregistration/music-school`, {
+                console.log('Data to be sent:', data);
+                
+                // Validate API_BASE_URL
+                if (!API_BASE_URL || API_BASE_URL === 'undefined') {
+                    throw new Error('API_BASE_URL is not properly configured');
+                }
+                
+                const fullUrl = `${API_BASE_URL}/preregistration/music-school`;
+                console.log('Full URL being used:', fullUrl);
+                console.log('API_BASE_URL value:', API_BASE_URL);
+                
+                const response = await fetch(fullUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(data)
                 });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Response error:', response.status, errorText);
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
                 
                 const result = await response.json();
                 
@@ -487,8 +516,21 @@
                     showAlert('error', result.message || 'Erro ao enviar pré-matrícula. Tente novamente.');
                 }
             } catch (error) {
-                console.error('Erro:', error);
-                showAlert('error', 'Erro de conexão. Verifique sua internet e tente novamente.');
+                console.error('Erro completo:', error);
+                console.error('Mensagem do erro:', error.message);
+                console.error('API_BASE_URL no momento do erro:', API_BASE_URL);
+                
+                let errorMessage = 'Erro de conexão. Verifique sua internet e tente novamente.';
+                
+                if (error.message.includes('API_BASE_URL is not properly configured')) {
+                    errorMessage = 'Erro de configuração da API. Tente recarregar a página.';
+                } else if (error.message.includes('ERR_NAME_NOT_RESOLVED')) {
+                    errorMessage = 'Erro de resolução de nome DNS. Verifique sua conexão com a internet.';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Erro ao conectar com o servidor. Verifique sua conexão.';
+                }
+                
+                showAlert('error', errorMessage);
             } finally {
                 setLoading(false);
             }

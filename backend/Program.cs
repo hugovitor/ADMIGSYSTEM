@@ -129,10 +129,23 @@ builder.Services.AddCors(options =>
         else
         {
             // Production CORS
-            var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
-            if (allowedOrigins?.Length > 0)
+            var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+            var originsList = allowedOrigins.ToList();
+            
+            // Always include the current host (same-origin requests)
+            var currentHost = builder.Configuration["ASPNETCORE_URLS"] ?? "https://church-management-backend-7owp.onrender.com";
+            var renderHost = "https://church-management-backend-7owp.onrender.com";
+            
+            if (!originsList.Contains(renderHost))
             {
-                policy.WithOrigins(allowedOrigins)
+                originsList.Add(renderHost);
+            }
+            
+            Console.WriteLine($"CORS Origins configured: {string.Join(", ", originsList)}");
+            
+            if (originsList.Count > 0)
+            {
+                policy.WithOrigins(originsList.ToArray())
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .AllowCredentials();
