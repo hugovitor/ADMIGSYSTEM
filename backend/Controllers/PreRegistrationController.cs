@@ -25,16 +25,6 @@ public class PreRegistrationController : ControllerBase
     {
         try
         {
-            // Validar se já existe uma pré-matrícula com este email
-            var existingPreRegistration = await _context.MusicSchoolPreRegistrations
-                .FirstOrDefaultAsync(p => p.Email.ToLower() == request.Email.ToLower() && 
-                                        (p.Status == "Pendente" || p.Status == "Contatado"));
-
-            if (existingPreRegistration != null)
-            {
-                return BadRequest(new { message = "Já existe uma pré-matrícula pendente com este email." });
-            }
-
             var preRegistration = new MusicSchoolPreRegistration
             {
                 Name = request.Name,
