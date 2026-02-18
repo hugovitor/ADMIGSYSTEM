@@ -30,28 +30,12 @@ public class MusicSchoolController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<MusicSchoolStudent>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<MusicSchoolStudent>>> GetStudents()
     {
-        try
-        {
-            Console.WriteLine("=== MUSICSCHOOL GET REQUEST ===");
-            Console.WriteLine($"User authenticated: {User?.Identity?.IsAuthenticated}");
-            Console.WriteLine($"User name: {User?.Identity?.Name}");
-            Console.WriteLine($"Claims count: {User?.Claims?.Count()}");
-            Console.WriteLine("===========================");
+        var students = await _context.MusicSchoolStudents
+            .Where(s => s.IsActive)
+            .OrderBy(s => s.Name)
+            .ToListAsync();
             
-            var students = await _context.MusicSchoolStudents
-                .Where(s => s.IsActive)
-                .OrderBy(s => s.Name)
-                .ToListAsync();
-                
-            Console.WriteLine($"Found {students.Count} music students");
-            return Ok(students);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"ERROR in MusicSchool GetStudents: {ex.Message}");
-            Console.WriteLine($"Stack trace: {ex.StackTrace}");
-            return StatusCode(500, new { message = "Internal server error", details = ex.Message });
-        }
+        return Ok(students);
     }
     
     /// <summary>
@@ -84,47 +68,19 @@ public class MusicSchoolController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<MusicSchoolStudent>> CreateStudent([FromBody] MusicSchoolStudent student)
     {
-        try
+        // Check if email already exists
+        if (await _context.MusicSchoolStudents.AnyAsync(s => s.Email == student.Email))
         {
-            Console.WriteLine("=== MUSICSCHOOL CREATE REQUEST ===");
-            Console.WriteLine($"Student Name: {student.Name}");
-            Console.WriteLine($"Student Email: {student.Email}");
-            Console.WriteLine("==============================");
-            
-            // Check if email already exists
-            if (await _context.MusicSchoolStudents.AnyAsync(s => s.Email == student.Email))
-            {
-                return BadRequest(new { message = "Email já cadastrado" });
-            }
-            
-            // Ensure all DateTime fields are UTC
-            student.EnrollmentDate = DateTime.UtcNow;
-            student.IsActive = true;
-            
-            // Convert other DateTime fields to UTC if they exist and are not null
-            if (student.BirthDate.HasValue && student.BirthDate.Value.Kind != DateTimeKind.Utc)
-            {
-                student.BirthDate = DateTime.SpecifyKind(student.BirthDate.Value, DateTimeKind.Utc);
-            }
-            
-            if (student.LastPaymentDate.HasValue && student.LastPaymentDate.Value.Kind != DateTimeKind.Utc)
-            {
-                student.LastPaymentDate = DateTime.SpecifyKind(student.LastPaymentDate.Value, DateTimeKind.Utc);
-            }
-            
-            _context.MusicSchoolStudents.Add(student);
-            await _context.SaveChangesAsync();
-            
-            Console.WriteLine($"Student created successfully with ID: {student.Id}");
-            
-            return CreatedAtAction(nameof(GetStudent), new { id = student.Id }, student);
+            return BadRequest(new { message = "Email já cadastrado" });
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"ERROR in MusicSchool CreateStudent: {ex.Message}");
-            Console.WriteLine($"Stack trace: {ex.StackTrace}");
-            return StatusCode(500, new { message = "Internal server error", details = ex.Message });
-        }
+        
+        student.EnrollmentDate = DateTime.UtcNow;
+        student.IsActive = true;
+        
+        _context.MusicSchoolStudents.Add(student);
+        await _context.SaveChangesAsync();
+        
+        return CreatedAtAction(nameof(GetStudent), new { id = student.Id }, student);
     }
     
     /// <summary>

@@ -76,39 +76,44 @@ public class AppDbContext : DbContext
             .HasForeignKey(f => f.MemberId)
             .OnDelete(DeleteBehavior.Cascade);
     }
-    
-    // Override SaveChangesAsync to automatically convert DateTime to UTC for PostgreSQL
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        ConvertDateTimesToUtc();
-        return await base.SaveChangesAsync(cancellationToken);
+
+    // Override SaveChanges to automatically convert DateTime to UTC for PostgreSQL compatibility
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {        ConvertDatesToUtc();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
     }
-    
-    public override int SaveChanges()
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
-        ConvertDateTimesToUtc();
-        return base.SaveChanges();
+        ConvertDatesToUtc();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
-    
-    private void ConvertDateTimesToUtc()
+
+    private void ConvertDatesToUtc()
     {
-        var entities = ChangeTracker.Entries()
+        var entries = ChangeTracker.Entries()
             .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
-            
-        foreach (var entity in entities)
+
+        foreach (var entry in entries)
         {
-            foreach (var property in entity.Properties)
+            foreach (var property in entry.Properties)
             {
-                if (property.CurrentValue is DateTime dateTime && dateTime.Kind != DateTimeKind.Utc)
+                if (property.Metadata.ClrType == typeof(DateTime))
                 {
-                    property.CurrentValue = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
-                }
-                else if (property.CurrentValue != null && property.Metadata.ClrType == typeof(DateTime?))
-                {
-                    var nullableDateTime = (DateTime?)property.CurrentValue;
-                    if (nullableDateTime.HasValue && nullableDateTime.Value.Kind != DateTimeKind.Utc)
+                    if (property.CurrentValue is DateTime dateTime && dateTime.Kind == DateTimeKind.Unspecified)
                     {
-                        property.CurrentValue = DateTime.SpecifyKind(nullableDateTime.Value, DateTimeKind.Utc);
+                        property.CurrentValue = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+                    }
+                }
+                else if (property.Metadata.ClrType == typeof(DateTime?))
+                {
+                    if (property.CurrentValue != null)
+                    {
+                        var nullableDateTime = (DateTime?)property.CurrentValue;
+                        if (nullableDateTime.HasValue && nullableDateTime.Value.Kind == DateTimeKind.Unspecified)
+                        {
+                            property.CurrentValue = DateTime.SpecifyKind(nullableDateTime.Value, DateTimeKind.Utc);
+                        }
                     }
                 }
             }

@@ -25,26 +25,19 @@ public class MembersController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MemberDto>>> GetMembers([FromQuery] bool includeInactive = false)
     {
-        try
+        var query = _context.Members.AsQueryable();
+        
+        if (!includeInactive)
         {
-            Console.WriteLine("=== MEMBERS GET REQUEST ===");
-            Console.WriteLine($"User authenticated: {User?.Identity?.IsAuthenticated}");
-            Console.WriteLine($"Include inactive: {includeInactive}");
-            Console.WriteLine("===========================");
-            
-            var query = _context.Members.AsQueryable();
-            
-            if (!includeInactive)
+            query = query.Where(m => m.IsActive);
+        }
+        
+        var members = await query
+            .OrderBy(m => m.FullName)
+            .Select(m => new MemberDto
             {
-                query = query.Where(m => m.IsActive);
-            }
-            
-            var members = await query
-                .OrderBy(m => m.FullName)
-                .Select(m => new MemberDto
-                {
-                    Id = m.Id,
-                    FullName = m.FullName,
+                Id = m.Id,
+                FullName = m.FullName,
                 Cpf = m.Cpf,
                 Rg = m.Rg,
                 BirthDate = m.BirthDate,
@@ -77,15 +70,7 @@ public class MembersController : ControllerBase
             })
             .ToListAsync();
             
-        Console.WriteLine($"Found {members.Count} members");
         return Ok(members);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"ERROR in Members GetMembers: {ex.Message}");
-            Console.WriteLine($"Stack trace: {ex.StackTrace}");
-            return StatusCode(500, new { message = "Internal server error", details = ex.Message });
-        }
     }
     
     [HttpGet("{id}")]

@@ -23,53 +23,38 @@ public class JiuJitsuController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<JiuJitsuStudentDto>>> GetStudents([FromQuery] bool includeInactive = false)
     {
-        try
+        var query = _context.JiuJitsuStudents.AsQueryable();
+        
+        if (!includeInactive)
         {
-            Console.WriteLine("=== JIUJITSU GET REQUEST ===");
-            Console.WriteLine($"User authenticated: {User?.Identity?.IsAuthenticated}");
-            Console.WriteLine($"Include inactive: {includeInactive}");
-            Console.WriteLine("===========================");
-            
-            var query = _context.JiuJitsuStudents.AsQueryable();
-            
-            if (!includeInactive)
+            query = query.Where(s => s.IsActive);
+        }
+        
+        var students = await query
+            .OrderBy(s => s.Name)
+            .Select(s => new JiuJitsuStudentDto
             {
-                query = query.Where(s => s.IsActive);
-            }
-            
-            var students = await query
-                .OrderBy(s => s.Name)
-                .Select(s => new JiuJitsuStudentDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Email = s.Email,
-                    Phone = s.Phone,
-                    Cpf = s.Cpf,
-                    BirthDate = s.BirthDate,
-                    Address = s.Address,
-                    Belt = s.Belt,
-                    Stripes = s.Stripes,
-                    LastPromotionDate = s.LastPromotionDate,
-                    MonthlyFee = s.MonthlyFee,
-                    LastPaymentDate = s.LastPaymentDate,
-                    PaymentStatus = s.PaymentStatus,
-                    EmergencyContact = s.EmergencyContact,
+                Id = s.Id,
+                Name = s.Name,
+                Email = s.Email,
+                Phone = s.Phone,
+                Cpf = s.Cpf,
+                BirthDate = s.BirthDate,
+                Address = s.Address,
+                Belt = s.Belt,
+                Stripes = s.Stripes,
+                LastPromotionDate = s.LastPromotionDate,
+                MonthlyFee = s.MonthlyFee,
+                LastPaymentDate = s.LastPaymentDate,
+                PaymentStatus = s.PaymentStatus,
+                EmergencyContact = s.EmergencyContact,
                 EmergencyPhone = s.EmergencyPhone,
                 HealthConditions = s.HealthConditions,
                 Notes = s.Notes
             })
             .ToListAsync();
             
-        Console.WriteLine($"Found {students.Count} jiujitsu students");
         return Ok(students);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"ERROR in JiuJitsu GetStudents: {ex.Message}");
-            Console.WriteLine($"Stack trace: {ex.StackTrace}");
-            return StatusCode(500, new { message = "Internal server error", details = ex.Message });
-        }
     }
     
     [HttpGet("{id}")]

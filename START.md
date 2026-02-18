@@ -87,24 +87,6 @@ npm run build
 npm run preview
 ```
 
-## 🌍 Configuração de Ambiente
-
-### Desenvolvimento Local
-O arquivo `frontend/.env` já está configurado para desenvolvimento:
-```
-VITE_API_BASE_URL=http://localhost:5000/api
-```
-
-### Produção
-1. ⚠️ **IMPORTANTE**: Configure PostgreSQL para evitar perda de dados! 
-   - Veja instruções em [FIX_DATA_LOSS.md](FIX_DATA_LOSS.md)
-   - O Render perde dados SQLite a cada deploy!
-2. Configure o backend em um serviço de nuvem
-3. Atualize `frontend/.env.production` com a URL real:
-```
-VITE_API_BASE_URL=https://sua-api-de-producao.com/api
-```
-
 ## ⚠️ Solução de Problemas
 
 ### Backend não inicia
@@ -113,15 +95,7 @@ VITE_API_BASE_URL=https://sua-api-de-producao.com/api
 
 ### Frontend não conecta ao backend
 - Verifique se o backend está rodando em http://localhost:5000
-- Para desenvolvimento local, certifique-se que o arquivo `frontend/.env` existe
-- Para produção, configure a variável VITE_API_BASE_URL com a URL do seu backend
-
-### Configurando Backend para Produção
-1. Faça deploy do backend para um serviço como Railway, Render ou Heroku
-2. Atualize o arquivo `frontend/.env.production` com a URL do backend:
-   ```
-   VITE_API_BASE_URL=https://sua-api-url.herokuapp.com/api
-   ```
+- Verifique o arquivo `frontend/src/services/api.ts`
 
 ### Erro de CORS
 - Verifique se o CORS está configurado no backend (já está por padrão)
@@ -131,12 +105,6 @@ VITE_API_BASE_URL=https://sua-api-de-producao.com/api
 - Certifique-se de que o backend está rodando
 - Verifique as credenciais: admin@igreja.com / Admin@123
 - Verifique se o banco de dados foi criado corretamente
-
-### ⚠️ PERDA DE DADOS EM PRODUÇÃO (CRÍTICO)
-- **PROBLEMA**: Render reinicia containers a cada deploy, perdendo dados SQLite
-- **SINTOMAS**: Dados desaparecem após novo deploy, precisa refazer login
-- **SOLUÇÃO**: Configure PostgreSQL externo - veja [FIX_DATA_LOSS.md](FIX_DATA_LOSS.md)
-- **URGÊNCIA**: Configure ANTES de cadastrar dados importantes!
 
 ## 📚 Próximos Passos
 

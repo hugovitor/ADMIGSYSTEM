@@ -22,15 +22,10 @@ bld/
 # Visual Studio 2015 cache/options directory
 .vs/
 
-# SQLite database
-*.db
-*.db-shm
-*.db-wal
-
-# Entity Framework Migrations
-Migrations/
-
-# .NET Core
+# Environment variables
+.env
+.env.local
+.env.*.local
 project.lock.json
 project.fragment.lock.json
 artifacts/
@@ -41,3 +36,8 @@ secrets.json
 appsettings.*.json
 !appsettings.json
 !appsettings.Development.json
+
+# Environment variables
+.env
+.env.local
+.env.*.local
