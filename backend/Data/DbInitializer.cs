@@ -9,8 +9,8 @@ public static class DbInitializer
     {
         try
         {
-            // Ensure the database and tables exist
-            await context.Database.EnsureCreatedAsync();
+            // Wait for migrations to complete (don't use EnsureCreated with migrations)
+            // The Program.cs already handles database creation via migrations
             
             // Check if admin user already exists
             if (await context.Users.AnyAsync(u => u.Email == "admin@igreja.com"))
