@@ -30,12 +30,28 @@ public class MusicSchoolController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<MusicSchoolStudent>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<MusicSchoolStudent>>> GetStudents()
     {
-        var students = await _context.MusicSchoolStudents
-            .Where(s => s.IsActive)
-            .OrderBy(s => s.Name)
-            .ToListAsync();
+        try
+        {
+            Console.WriteLine("=== MUSICSCHOOL GET REQUEST ===");
+            Console.WriteLine($"User authenticated: {User?.Identity?.IsAuthenticated}");
+            Console.WriteLine($"User name: {User?.Identity?.Name}");
+            Console.WriteLine($"Claims count: {User?.Claims?.Count()}");
+            Console.WriteLine("===========================");
             
-        return Ok(students);
+            var students = await _context.MusicSchoolStudents
+                .Where(s => s.IsActive)
+                .OrderBy(s => s.Name)
+                .ToListAsync();
+                
+            Console.WriteLine($"Found {students.Count} music students");
+            return Ok(students);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ERROR in MusicSchool GetStudents: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            return StatusCode(500, new { message = "Internal server error", details = ex.Message });
+        }
     }
     
     /// <summary>
