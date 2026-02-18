@@ -2,22 +2,25 @@ import axios from 'axios';
 
 // API URL from environment variables with fallback
 const getApiBaseUrl = () => {
-  // Use environment variable if available
-  const envApiUrl = import.meta.env.VITE_API_BASE_URL;
-  if (envApiUrl) {
-    return envApiUrl;
-  }
+  // Force production backend URL temporarily to fix CORS
+  // TODO: Configure VITE_API_BASE_URL in Vercel dashboard for proper solution
+  return 'https://church-management-backend-7owp.onrender.com/api';
+  
+  // Use environment variable if available (commented for now)
+  // const envApiUrl = import.meta.env.VITE_API_BASE_URL;
+  // if (envApiUrl) {
+  //   return envApiUrl;
+  // }
   
   // Fallback logic for environments without .env files
-  const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+  // const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
   
-  if (isProduction) {
-    // For now, redirect to development instructions when no backend is configured  
-    console.error('No production backend configured. Please set VITE_API_BASE_URL environment variable.');
-    return 'http://localhost:5000/api'; // This will cause CORS error in production to alert developer
-  }
+  // if (isProduction) {
+  //   console.error('No production backend configured. Please set VITE_API_BASE_URL environment variable.');
+  //   return 'http://localhost:5000/api';
+  // }
   
-  return 'http://localhost:5000/api';
+  // return 'http://localhost:5000/api';
 };
 
 const api = axios.create({
