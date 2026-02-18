@@ -97,7 +97,11 @@ const Login: React.FC = () => {
               mb: 2,
             }}
           >
-            <Church sx={{ fontSize: { xs: 50, sm: 60 }, color: theme.palette.primary.main }} />
+            <img 
+              src="https://www.admigvicentepires.org/favicon.ico" 
+              alt="ADMIG Logo" 
+              style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+            />
           </Avatar>
           <Typography 
             variant={isMobile ? "h5" : "h4"} 
@@ -117,7 +121,7 @@ const Login: React.FC = () => {
               mt: 1,
             }}
           >
-            Assembleia de Deus Ministério do Gusrá  Em Vicente Pires
+            Assembleia de Deus Ministério do Internacional do Guará Em Vicente Pires
           </Typography>
         </Box>
 

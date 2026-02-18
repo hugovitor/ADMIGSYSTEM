@@ -17,36 +17,36 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#0A1628',
-      light: '#1E3A5F',
-      dark: '#050B14',
+      main: '#1e40af', // Azul principal
+      light: '#3b82f6', // Azul claro
+      dark: '#1e3a8a', // Azul escuro
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#3B82F6',
-      light: '#60A5FA',
-      dark: '#2563EB',
+      main: '#0ea5e9', // Azul céu
+      light: '#38bdf8',
+      dark: '#0284c7',
       contrastText: '#FFFFFF',
     },
     background: {
-      default: '#F8FAFC',
+      default: '#f8fafc',
       paper: '#FFFFFF',
     },
     text: {
-      primary: '#1E293B',
-      secondary: '#64748B',
+      primary: '#1f2937',
+      secondary: '#6b7280',
     },
     success: {
-      main: '#10B981',
+      main: '#0891b2', // Azul teal
     },
     warning: {
-      main: '#F59E0B',
+      main: '#0284c7', // Azul médio
     },
     error: {
-      main: '#EF4444',
+      main: '#dc2626',
     },
     info: {
-      main: '#3B82F6',
+      main: '#0ea5e9', // Azul céu
     },
   },
   typography: {

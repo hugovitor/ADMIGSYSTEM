@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -39,14 +39,32 @@ const drawerWidth = 240;
 const Layout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const user = authService.getCurrentUser();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const user = authService.getCurrentUser();
+  
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  // Listener para evento de toggle do sidebar
+  useEffect(() => {
+    const handleToggleSidebar = () => {
+      setSidebarOpen(!sidebarOpen);
+    };
+
+    window.addEventListener('toggleSidebar', handleToggleSidebar);
+    return () => {
+      window.removeEventListener('toggleSidebar', handleToggleSidebar);
+    };
+  }, [sidebarOpen]);
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    if (isMobile) {
+      setMobileOpen(!mobileOpen);
+    } else {
+      setSidebarOpen(!sidebarOpen);
+    }
   };
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -95,7 +113,11 @@ const Layout: React.FC = () => {
         }}
       >
         <Avatar sx={{ width: 40, height: 40, bgcolor: 'white' }}>
-          <Church sx={{ color: theme.palette.primary.main }} />
+          <img 
+            src="https://www.admigvicentepires.org/favicon.ico" 
+            alt="ADMIG Logo" 
+            style={{ width: '70%', height: '70%', objectFit: 'contain' }}
+          />
         </Avatar>
         <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1.1rem' }}>
             ADMIGVIPI
@@ -148,8 +170,18 @@ const Layout: React.FC = () => {
         position="fixed"
         elevation={1}
         sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
+          width: { 
+            xs: '100%',
+            sm: sidebarOpen ? `calc(100% - ${drawerWidth}px)` : '100%'
+          },
+          ml: { 
+            xs: 0,
+            sm: sidebarOpen ? `${drawerWidth}px` : 0
+          },
+          transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
           bgcolor: 'white',
           color: theme.palette.primary.main,
         }}
@@ -157,10 +189,13 @@ const Layout: React.FC = () => {
         <Toolbar>
           <IconButton
             color="inherit"
-            aria-label="open drawer"
+            aria-label="toggle drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ 
+              mr: 2, 
+              display: { xs: 'block', sm: 'block' }
+            }}
           >
             <MenuIcon />
           </IconButton>
@@ -176,7 +211,13 @@ const Layout: React.FC = () => {
               gap: 1,
             }}
           >
-            {!isMobile && <Church />}
+            {!isMobile && (
+              <img 
+                src="https://www.admigvicentepires.org/favicon.ico" 
+                alt="ADMIG Logo" 
+                style={{ width: '24px', height: '24px', objectFit: 'contain' }}
+              />
+            )}
             Sistema de Gerenciamento
           </Typography>
           <div>
@@ -229,7 +270,14 @@ const Layout: React.FC = () => {
           </div>
         </Toolbar>
       </AppBar>
-      <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
+      <Box component="nav" sx={{ 
+        width: { xs: 0, sm: sidebarOpen ? drawerWidth : 0 }, 
+        flexShrink: { sm: 0 },
+        transition: theme.transitions.create('width', {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.leavingScreen,
+        }),
+      }}>
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -243,12 +291,20 @@ const Layout: React.FC = () => {
           {drawer}
         </Drawer>
         <Drawer
-          variant="permanent"
+          variant="persistent"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, border: 'none' },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: drawerWidth, 
+              border: 'none',
+              transition: theme.transitions.create('transform', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
+            },
           }}
-          open
+          open={sidebarOpen}
         >
           {drawer}
         </Drawer>
@@ -258,7 +314,14 @@ const Layout: React.FC = () => {
         sx={{
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          width: { 
+            xs: '100%',
+            sm: sidebarOpen ? `calc(100% - ${drawerWidth}px)` : '100%'
+          },
+          transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
           bgcolor: theme.palette.background.default,
           minHeight: '100vh',
         }}

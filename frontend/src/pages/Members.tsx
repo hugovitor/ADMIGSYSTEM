@@ -418,7 +418,11 @@ const Members: React.FC = () => {
                         {stats.baptismStats.batizadoAguas + stats.baptismStats.ambos}
                       </Typography>
                     </Box>
-                    <Church sx={{ fontSize: 40, color: 'secondary.main' }} />
+                    <img 
+                      src="https://www.admigvicentepires.org/favicon.ico" 
+                      alt="ADMIG Logo" 
+                      style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+                    />
                   </Box>
                 </CardContent>
               </Card>
