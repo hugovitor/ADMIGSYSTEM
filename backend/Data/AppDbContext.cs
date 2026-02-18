@@ -76,4 +76,40 @@ public class AppDbContext : DbContext
             .HasForeignKey(f => f.MemberId)
             .OnDelete(DeleteBehavior.Cascade);
     }
+    
+    // Override SaveChangesAsync to automatically convert DateTime to UTC for PostgreSQL
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        ConvertDateTimesToUtc();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+    
+    public override int SaveChanges()
+    {
+        ConvertDateTimesToUtc();
+        return base.SaveChanges();
+    }
+    
+    private void ConvertDateTimesToUtc()
+    {
+        var entities = ChangeTracker.Entries()
+            .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+            
+        foreach (var entity in entities)
+        {
+            foreach (var property in entity.Properties)
+            {
+                if (property.CurrentValue is DateTime dateTime && dateTime.Kind != DateTimeKind.Utc)
+                {
+                    property.CurrentValue = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+                }
+                else if (property.CurrentValue is DateTime? nullableDateTime && 
+                         nullableDateTime.HasValue && 
+                         nullableDateTime.Value.Kind != DateTimeKind.Utc)
+                {
+                    property.CurrentValue = DateTime.SpecifyKind(nullableDateTime.Value, DateTimeKind.Utc);
+                }
+            }
+        }
+    }
 }

@@ -84,19 +84,47 @@ public class MusicSchoolController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<MusicSchoolStudent>> CreateStudent([FromBody] MusicSchoolStudent student)
     {
-        // Check if email already exists
-        if (await _context.MusicSchoolStudents.AnyAsync(s => s.Email == student.Email))
+        try
         {
-            return BadRequest(new { message = "Email já cadastrado" });
+            Console.WriteLine("=== MUSICSCHOOL CREATE REQUEST ===");
+            Console.WriteLine($"Student Name: {student.Name}");
+            Console.WriteLine($"Student Email: {student.Email}");
+            Console.WriteLine("==============================");
+            
+            // Check if email already exists
+            if (await _context.MusicSchoolStudents.AnyAsync(s => s.Email == student.Email))
+            {
+                return BadRequest(new { message = "Email já cadastrado" });
+            }
+            
+            // Ensure all DateTime fields are UTC
+            student.EnrollmentDate = DateTime.UtcNow;
+            student.IsActive = true;
+            
+            // Convert other DateTime fields to UTC if they exist and are not null
+            if (student.BirthDate.HasValue && student.BirthDate.Value.Kind != DateTimeKind.Utc)
+            {
+                student.BirthDate = DateTime.SpecifyKind(student.BirthDate.Value, DateTimeKind.Utc);
+            }
+            
+            if (student.LastPaymentDate.HasValue && student.LastPaymentDate.Value.Kind != DateTimeKind.Utc)
+            {
+                student.LastPaymentDate = DateTime.SpecifyKind(student.LastPaymentDate.Value, DateTimeKind.Utc);
+            }
+            
+            _context.MusicSchoolStudents.Add(student);
+            await _context.SaveChangesAsync();
+            
+            Console.WriteLine($"Student created successfully with ID: {student.Id}");
+            
+            return CreatedAtAction(nameof(GetStudent), new { id = student.Id }, student);
         }
-        
-        student.EnrollmentDate = DateTime.UtcNow;
-        student.IsActive = true;
-        
-        _context.MusicSchoolStudents.Add(student);
-        await _context.SaveChangesAsync();
-        
-        return CreatedAtAction(nameof(GetStudent), new { id = student.Id }, student);
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ERROR in MusicSchool CreateStudent: {ex.Message}");
+            Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            return StatusCode(500, new { message = "Internal server error", details = ex.Message });
+        }
     }
     
     /// <summary>
