@@ -87,6 +87,21 @@ npm run build
 npm run preview
 ```
 
+## 🌍 Configuração de Ambiente
+
+### Desenvolvimento Local
+O arquivo `frontend/.env` já está configurado para desenvolvimento:
+```
+VITE_API_BASE_URL=http://localhost:5000/api
+```
+
+### Produção
+1. Configure o backend em um serviço de nuvem
+2. Atualize `frontend/.env.production` com a URL real:
+```
+VITE_API_BASE_URL=https://sua-api-de-producao.com/api
+```
+
 ## ⚠️ Solução de Problemas
 
 ### Backend não inicia
@@ -95,7 +110,15 @@ npm run preview
 
 ### Frontend não conecta ao backend
 - Verifique se o backend está rodando em http://localhost:5000
-- Verifique o arquivo `frontend/src/services/api.ts`
+- Para desenvolvimento local, certifique-se que o arquivo `frontend/.env` existe
+- Para produção, configure a variável VITE_API_BASE_URL com a URL do seu backend
+
+### Configurando Backend para Produção
+1. Faça deploy do backend para um serviço como Railway, Render ou Heroku
+2. Atualize o arquivo `frontend/.env.production` com a URL do backend:
+   ```
+   VITE_API_BASE_URL=https://sua-api-url.herokuapp.com/api
+   ```
 
 ### Erro de CORS
 - Verifique se o CORS está configurado no backend (já está por padrão)
