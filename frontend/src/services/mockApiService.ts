@@ -2,16 +2,6 @@
 export const mockApiService = {
   // Simular resposta da API de música
   async getMusicSchoolData() {
-    // Simular dados que viriam da API real /api/musicschool
-    const mockData = [
-      { id: 1, name: 'João Silva', instrument: 'Piano', level: 'Intermediário' },
-      { id: 2, name: 'Maria Santos', instrument: 'Violão', level: 'Iniciante' },
-      { id: 3, name: 'Pedro Costa', instrument: 'Bateria', level: 'Avançado' },
-      { id: 4, name: 'Ana Oliveira', instrument: 'Teclado', level: 'Intermediário' },
-      { id: 5, name: 'Carlos Pereira', instrument: 'Baixo', level: 'Iniciante' },
-      // ... mais alunos simulados
-    ];
-    
     // Simular diferentes cenários baseados na hora
     const hour = new Date().getHours();
     const baseCount = 45;
@@ -71,9 +61,6 @@ export const mockApiService = {
         this.getMembersData()
       ]);
 
-      const now = new Date();
-      const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      
       // Calcular crescimentos baseados em dados "reais" simulados
       const musicGrowth = Math.max(1, Math.floor((musicData.length - 42) / 42 * 100));
       const jiujitsuGrowth = Math.max(1, Math.floor((jiujitsuData.length - 23) / 23 * 100));

@@ -27,7 +27,6 @@ import {
   Groups,
   Person,
   AccountCircle,
-  Church,
   Logout,
   People,
   ChildCare,

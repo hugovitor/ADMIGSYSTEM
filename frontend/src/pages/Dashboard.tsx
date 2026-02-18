@@ -6,9 +6,9 @@ import {
   Stack, Divider, Fab, Tooltip
 } from '@mui/material';
 import { 
-  MusicNote, SportsKabaddi, Groups, Church, TrendingUp, People, 
+  MusicNote, SportsKabaddi, Groups, TrendingUp, People, 
   EventNote, Favorite, AutoAwesome, ChevronRight, Schedule,
-  LocationOn, Phone, Email, Menu as MenuIcon, MenuOpen
+  LocationOn, Phone, Menu as MenuIcon, MenuOpen
 } from '@mui/icons-material';
 import { authService } from '../services/authService';
 import { mockApiService } from '../services/mockApiService';
@@ -62,7 +62,6 @@ const Dashboard: React.FC = () => {
       ]);
       
       let musicData = null, jiujitsuData = null, memberData = null;
-      let usingMockData = false;
       
       // Processar respostas das APIs reais
       if (musicResponse.status === 'fulfilled' && musicResponse.value) {

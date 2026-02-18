@@ -44,7 +44,6 @@ import {
   Visibility,
   Person,
   Group,
-  Church,
   FamilyRestroom,
 } from '@mui/icons-material';
 import { memberService, Member, MemberDetail, MemberStats } from '../services/memberService';

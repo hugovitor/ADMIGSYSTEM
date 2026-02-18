@@ -12,7 +12,6 @@ import {
   useTheme,
   useMediaQuery,
 } from '@mui/material';
-import { Church } from '@mui/icons-material';
 import { authService } from '../services/authService';
 
 const Login: React.FC = () => {
