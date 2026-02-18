@@ -103,11 +103,13 @@ public class AppDbContext : DbContext
                 {
                     property.CurrentValue = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
                 }
-                else if (property.CurrentValue is DateTime? nullableDateTime && 
-                         nullableDateTime.HasValue && 
-                         nullableDateTime.Value.Kind != DateTimeKind.Utc)
+                else if (property.CurrentValue != null && property.Metadata.ClrType == typeof(DateTime?))
                 {
-                    property.CurrentValue = DateTime.SpecifyKind(nullableDateTime.Value, DateTimeKind.Utc);
+                    var nullableDateTime = (DateTime?)property.CurrentValue;
+                    if (nullableDateTime.HasValue && nullableDateTime.Value.Kind != DateTimeKind.Utc)
+                    {
+                        property.CurrentValue = DateTime.SpecifyKind(nullableDateTime.Value, DateTimeKind.Utc);
+                    }
                 }
             }
         }
