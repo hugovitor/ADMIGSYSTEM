@@ -105,13 +105,14 @@ public class PreRegistrationController : ControllerBase
         {
             var instruments = new[]
             {
-                "Piano",
                 "Violino",
                 "Flauta",
                 "Saxofone",
                 "Trompete",
                 "Clarinete",
-                "Canto",
+                "Trompa",
+                "Trombone",
+                "Violoncelo",
                 "Musicalização Infantil (Bebês)"
             };
 
