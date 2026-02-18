@@ -88,7 +88,7 @@ export const mockApiService = {
         general: {
           todayEvents: 2,
           activeMinistries: 8,
-          lastUpdated: now.toISOString()
+          lastUpdated: new Date().toISOString()
         }
       };
     } catch (error) {
