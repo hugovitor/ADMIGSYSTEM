@@ -96,8 +96,11 @@ VITE_API_BASE_URL=http://localhost:5000/api
 ```
 
 ### Produção
-1. Configure o backend em um serviço de nuvem
-2. Atualize `frontend/.env.production` com a URL real:
+1. ⚠️ **IMPORTANTE**: Configure PostgreSQL para evitar perda de dados! 
+   - Veja instruções em [FIX_DATA_LOSS.md](FIX_DATA_LOSS.md)
+   - O Render perde dados SQLite a cada deploy!
+2. Configure o backend em um serviço de nuvem
+3. Atualize `frontend/.env.production` com a URL real:
 ```
 VITE_API_BASE_URL=https://sua-api-de-producao.com/api
 ```
@@ -128,6 +131,12 @@ VITE_API_BASE_URL=https://sua-api-de-producao.com/api
 - Certifique-se de que o backend está rodando
 - Verifique as credenciais: admin@igreja.com / Admin@123
 - Verifique se o banco de dados foi criado corretamente
+
+### ⚠️ PERDA DE DADOS EM PRODUÇÃO (CRÍTICO)
+- **PROBLEMA**: Render reinicia containers a cada deploy, perdendo dados SQLite
+- **SINTOMAS**: Dados desaparecem após novo deploy, precisa refazer login
+- **SOLUÇÃO**: Configure PostgreSQL externo - veja [FIX_DATA_LOSS.md](FIX_DATA_LOSS.md)
+- **URGÊNCIA**: Configure ANTES de cadastrar dados importantes!
 
 ## 📚 Próximos Passos
 

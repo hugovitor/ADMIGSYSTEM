@@ -58,29 +58,57 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 var forceSlite = Environment.GetEnvironmentVariable("FORCE_SQLITE");
 
+Console.WriteLine("=== DATABASE DIAGNOSTIC ===");
 Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
 Console.WriteLine($"DATABASE_URL exists: {!string.IsNullOrEmpty(databaseUrl)}");
+Console.WriteLine($"DATABASE_URL (first 30 chars): {(string.IsNullOrEmpty(databaseUrl) ? "NULL" : databaseUrl.Substring(0, Math.Min(30, databaseUrl.Length)) + "...")}");
 Console.WriteLine($"FORCE_SQLITE: {forceSlite}");
+Console.WriteLine($"DefaultConnection: {connectionString}");
+Console.WriteLine("==============================");
 
-if (forceSlite == "true" || string.IsNullOrEmpty(databaseUrl))
+// Force PostgreSQL if we're on Render (even without DATABASE_URL set)
+var renderHost = Environment.GetEnvironmentVariable("RENDER_SERVICE_NAME");
+var isRender = !string.IsNullOrEmpty(renderHost) || 
+               !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RENDER")) ||
+               !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("RENDER_SERVICE_ID"));
+
+Console.WriteLine($"Render detection: ServiceName={renderHost}, IsRender={isRender}");
+
+if (forceSlite == "true")
 {
-    // Use SQLite (for development or forced)
-    Console.WriteLine($"Using SQLite - Connection: {connectionString}");
+    // Explicitly forced SQLite
+    Console.WriteLine("🔥 DECISION: Using SQLite (FORCED by FORCE_SQLITE=true)");
+    Console.WriteLine($"🔥 SQLite Connection: {connectionString}");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlite(connectionString));
 }
-else if (builder.Environment.IsProduction() && !string.IsNullOrEmpty(databaseUrl))
+else if (!string.IsNullOrEmpty(databaseUrl))
 {
-    // Use PostgreSQL in production 
-    Console.WriteLine("Using PostgreSQL in production");
+    // PostgreSQL with DATABASE_URL 
+    Console.WriteLine("✅ DECISION: Using PostgreSQL (DATABASE_URL provided)");
+    Console.WriteLine($"✅ Original DATABASE_URL length: {databaseUrl.Length}");
     connectionString = ConvertPostgresUrl(databaseUrl);
+    Console.WriteLine($"✅ Converted connection string length: {connectionString.Length}");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(connectionString));
+}
+else if (isRender)
+{
+    // We're on Render but no DATABASE_URL - this is the problem!
+    Console.WriteLine("🚨 PROBLEM DETECTED: On Render but no DATABASE_URL!");
+    Console.WriteLine("🚨 This means PostgreSQL wasn't configured properly in Render dashboard");
+    Console.WriteLine("🚨 Falling back to SQLite - DATA WILL BE LOST ON RESTART!");
+    Console.WriteLine($"🔥 SQLite Connection: {connectionString}");
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite(connectionString));
 }
 else
 {
     // Default to SQLite
-    Console.WriteLine($"Using SQLite (default) - Connection: {connectionString}");
+    Console.WriteLine("🔥 DECISION: Using SQLite (default fallback)");
+    Console.WriteLine($"🔥 REASON: Not production OR no DATABASE_URL");
+    Console.WriteLine($"🔥 IsProduction: {builder.Environment.IsProduction()}");
+    Console.WriteLine($"🔥 SQLite Connection: {connectionString}");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlite(connectionString));
 }
@@ -204,7 +232,10 @@ using (var scope = app.Services.CreateScope())
     var resetDatabase = Environment.GetEnvironmentVariable("RESET_DATABASE");
     var forceDbCreate = Environment.GetEnvironmentVariable("FORCE_DB_CREATE");
     
+    Console.WriteLine("=== DATABASE INITIALIZATION ===");
     Console.WriteLine($"Database initialization - Reset: {resetDatabase}, Force: {forceDbCreate}, HasDatabaseUrl: {!string.IsNullOrEmpty(databaseUrl)}");
+    Console.WriteLine($"Environment.IsProduction(): {app.Environment.IsProduction()}");
+    Console.WriteLine("==============================");
     
     try
     {
