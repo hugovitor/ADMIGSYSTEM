@@ -190,22 +190,10 @@ using (var scope = app.Services.CreateScope())
     
     try
     {
-        if (resetDatabase == "true")
-        {
-            Console.WriteLine("RESET_DATABASE=true detected. Deleting and recreating database...");
-            await context.Database.EnsureDeletedAsync();
-            await context.Database.EnsureCreatedAsync();
-        }
-        else if (forceDbCreate == "true" || string.IsNullOrEmpty(databaseUrl))
-        {
-            Console.WriteLine($"Force creating database. Reason: ForceCreate={forceDbCreate}, NoDatabaseUrl={string.IsNullOrEmpty(databaseUrl)}");
-            await context.Database.EnsureCreatedAsync();
-        }
-        else
-        {
-            Console.WriteLine("Running migrations...");
-            await context.Database.MigrateAsync();
-        }
+        // Always use migrations for PostgreSQL - never delete and recreate
+        // This prevents data loss and connection issues in production
+        Console.WriteLine("Running migrations...");
+        await context.Database.MigrateAsync();
         
         Console.WriteLine("Database setup completed successfully.");
     }
