@@ -52,16 +52,35 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// Database - Supabase PostgreSQL
-var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL") 
-    ?? throw new InvalidOperationException("DATABASE_URL environment variable is required. Configure it with your Supabase connection string.");
+// Database - PostgreSQL
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+var configuredDatabaseUrl = builder.Configuration["Database:Url"];
+var configuredConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-var connectionString = ConvertPostgresUrl(databaseUrl);
+var rawDatabaseValue = databaseUrl ?? configuredDatabaseUrl ?? configuredConnectionString;
+var databaseSource = databaseUrl != null
+    ? "env:DATABASE_URL"
+    : configuredDatabaseUrl != null
+        ? "config:Database:Url"
+        : "config:ConnectionStrings:DefaultConnection";
+if (string.IsNullOrWhiteSpace(rawDatabaseValue))
+{
+    throw new InvalidOperationException("Database not configured. Set DATABASE_URL or configure Database:Url/ConnectionStrings:DefaultConnection in appsettings.");
+}
+
+var isUrl = rawDatabaseValue.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase)
+    || rawDatabaseValue.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase);
+
+var connectionString = isUrl ? ConvertPostgresUrl(rawDatabaseValue) : rawDatabaseValue;
 
 Console.WriteLine("=".PadRight(60, '='));
 Console.WriteLine($"🔧 Environment: {builder.Environment.EnvironmentName}");
-Console.WriteLine("🐘 Database: PostgreSQL (Supabase)");
-Console.WriteLine($"🌐 Host: {new Uri(databaseUrl).Host}");
+Console.WriteLine("🐘 Database: PostgreSQL");
+Console.WriteLine($"🔌 Source: {databaseSource}");
+if (isUrl)
+{
+    Console.WriteLine($"🌐 Host: {new Uri(rawDatabaseValue).Host}");
+}
 Console.WriteLine("=".PadRight(60, '='));
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -238,7 +257,7 @@ static string ConvertPostgresUrl(string databaseUrl)
 {
     try
     {
-        Console.WriteLine($"Converting DATABASE_URL: {databaseUrl}");
+        Console.WriteLine("Converting DATABASE_URL (redacted)");
         
         var uri = new Uri(databaseUrl);
         var db = uri.AbsolutePath.Trim('/');

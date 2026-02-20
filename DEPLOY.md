@@ -24,7 +24,7 @@ DATABASE_URL=<seu_postgre_url_aqui>  # Render fornece automaticamente
 ASPNETCORE_ENVIRONMENT=Production
 PORT=10000
 
-# JWT (substitua pelos valores desejados)
+# JWT (obrigatorias - nao deixe no appsettings)
 JwtSettings__SecretKey=KTJPv8jTQGKi8bgGyPYk1YqfOVg3jF3TtWgdcTmstZpFgWeRXLzSHOKlYMFgY2Ky
 JwtSettings__Issuer=ChurchManagementAPI
 JwtSettings__Audience=ChurchManagementUsers
