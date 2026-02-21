@@ -1,9 +1,12 @@
+import { getApiBaseUrl } from './api';
+
 // Services para buscar dados reais do dashboard
 export const dashboardService = {
   // Buscar estatísticas gerais
   async getGeneralStats() {
     try {
-      const response = await fetch('/api/dashboard/stats');
+      const baseUrl = getApiBaseUrl();
+      const response = await fetch(`${baseUrl}/dashboard/stats`);
       if (response.ok) {
         return await response.json();
       }
@@ -23,7 +26,8 @@ export const dashboardService = {
   // Buscar dados da escola de música
   async getMusicSchoolStats() {
     try {
-      const response = await fetch('/api/music-school/stats');
+      const baseUrl = getApiBaseUrl();
+      const response = await fetch(`${baseUrl}/music-school/stats`);
       if (response.ok) {
         return await response.json();
       }
@@ -45,7 +49,8 @@ export const dashboardService = {
   // Buscar dados do jiu-jitsu
   async getJiuJitsuStats() {
     try {
-      const response = await fetch('/api/jiujitsu/stats');
+      const baseUrl = getApiBaseUrl();
+      const response = await fetch(`${baseUrl}/jiujitsu/stats`);
       if (response.ok) {
         return await response.json();
       }
@@ -73,7 +78,8 @@ export const dashboardService = {
   // Buscar dados do grupo de homens
   async getMensGroupStats() {
     try {
-      const response = await fetch('/api/mens-group/stats');
+      const baseUrl = getApiBaseUrl();
+      const response = await fetch(`${baseUrl}/mens-group/stats`);
       if (response.ok) {
         return await response.json();
       }
@@ -95,7 +101,8 @@ export const dashboardService = {
   // Buscar estatísticas detalhadas dos membros
   async getMembersStats() {
     try {
-      const response = await fetch('/api/members/stats');
+      const baseUrl = getApiBaseUrl();
+      const response = await fetch(`${baseUrl}/members/stats`);
       if (response.ok) {
         return await response.json();
       }

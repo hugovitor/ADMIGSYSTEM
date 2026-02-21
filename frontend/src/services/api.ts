@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Dynamic API URL based on environment
-const getApiBaseUrl = () => {
+export const getApiBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL?.trim();
   if (envUrl) {
     return envUrl;

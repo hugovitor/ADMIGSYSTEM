@@ -12,6 +12,7 @@ import {
 } from '@mui/icons-material';
 import { authService } from '../services/authService';
 import { mockApiService } from '../services/mockApiService';
+import { getApiBaseUrl } from '../services/api';
 import '../styles/dashboard.css';
 
 const Dashboard: React.FC = () => {
@@ -43,18 +44,19 @@ const Dashboard: React.FC = () => {
       console.log('Buscando dados reais das APIs...');
       
       // Tentar buscar dados reais das APIs existentes do backend primeiro
+      const baseUrl = getApiBaseUrl();
       const [musicResponse, jiujitsuResponse, membersResponse] = await Promise.allSettled([
-        fetch('/api/musicschool', { 
+        fetch(`${baseUrl}/musicschool`, { 
           headers: { 
             'Authorization': `Bearer ${authService.getToken()}`
           } 
         }).then(res => res.ok ? res.json() : null),
-        fetch('/api/jiujitsu', { 
+        fetch(`${baseUrl}/jiujitsu`, { 
           headers: { 
             'Authorization': `Bearer ${authService.getToken()}`
           } 
         }).then(res => res.ok ? res.json() : null),
-        fetch('/api/members', { 
+        fetch(`${baseUrl}/members`, { 
           headers: { 
             'Authorization': `Bearer ${authService.getToken()}`
           } 
