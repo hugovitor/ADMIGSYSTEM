@@ -26,7 +26,6 @@ public class MusicSchoolPreRegistrationRequestDto
     public string Email { get; set; } = string.Empty;
     
     [Required(ErrorMessage = "Telefone é obrigatório")]
-    [Phone(ErrorMessage = "Telefone deve ter um formato válido")]
     [MaxLength(20, ErrorMessage = "Telefone deve ter no máximo 20 caracteres")]
     public string Phone { get; set; } = string.Empty;
     
@@ -39,7 +38,6 @@ public class MusicSchoolPreRegistrationRequestDto
     [MaxLength(100, ErrorMessage = "Email do responsável deve ter no máximo 100 caracteres")] 
     public string? ParentEmail { get; set; }
     
-    [Phone(ErrorMessage = "Telefone do responsável deve ter um formato válido")]
     [MaxLength(20, ErrorMessage = "Telefone do responsável deve ter no máximo 20 caracteres")]
     public string? ParentPhone { get; set; }
     
