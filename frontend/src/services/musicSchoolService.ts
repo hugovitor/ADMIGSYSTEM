@@ -122,4 +122,8 @@ export const musicSchoolService = {
     const response = await api.post<MusicSchoolStudent>(`/musicschool/pre-registrations/${id}/convert`, data);
     return response.data;
   },
+
+  deletePreRegistration: async (id: number): Promise<void> => {
+    await api.delete(`/musicschool/pre-registrations/${id}`);
+  },
 };

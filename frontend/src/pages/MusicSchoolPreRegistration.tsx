@@ -41,7 +41,6 @@ const HeaderSection = styled(Box)(({ theme }) => ({
 const MusicSchoolPreRegistration: React.FC = () => {
   const [formData, setFormData] = useState<MusicSchoolPreRegistrationRequest>({
     name: '',
-    email: '',
     phone: '',
     birthDate: '',
     parentName: '',
@@ -105,7 +104,6 @@ const MusicSchoolPreRegistration: React.FC = () => {
       setSuccess(true);
       setFormData({
         name: '',
-        email: '',
         phone: '',
         birthDate: '',
         parentName: '',
@@ -195,18 +193,6 @@ const MusicSchoolPreRegistration: React.FC = () => {
                 InputLabelProps={{
                   shrink: true,
                 }}
-                variant="outlined"
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleChange('email')}
                 variant="outlined"
               />
             </Grid>

@@ -384,6 +384,29 @@ public class MusicSchoolController : ControllerBase
         
         return CreatedAtAction(nameof(GetStudent), new { id = student.Id }, student);
     }
+
+    /// <summary>
+    /// Remove uma pré-matrícula
+    /// </summary>
+    /// <param name="id">ID da pré-matrícula</param>
+    /// <returns>Sem conteúdo</returns>
+    [HttpDelete("pre-registrations/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeletePreRegistration(int id)
+    {
+        var preRegistration = await _context.MusicSchoolPreRegistrations.FindAsync(id);
+
+        if (preRegistration == null)
+        {
+            return NotFound();
+        }
+
+        _context.MusicSchoolPreRegistrations.Remove(preRegistration);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
 }
 
 public class UpdatePreRegistrationRequest

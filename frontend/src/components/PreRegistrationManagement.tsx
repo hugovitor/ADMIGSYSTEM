@@ -28,6 +28,7 @@ import {
 import {
   Edit,
   CheckCircle,
+  Delete,
   Email,
   Phone,
 } from '@mui/icons-material';
@@ -127,6 +128,20 @@ const PreRegistrationManagement: React.FC<PreRegistrationManagementProps> = ({ o
     }
   };
 
+  const handleDelete = async (preRegistration: MusicSchoolPreRegistration) => {
+    const confirmed = window.confirm(`Deseja excluir a pré-matrícula de ${preRegistration.name}?`);
+    if (!confirmed) return;
+
+    try {
+      await musicSchoolService.deletePreRegistration(preRegistration.id);
+      setSuccess('Pré-matrícula excluída com sucesso!');
+      loadPreRegistrations();
+      onRefresh?.();
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Erro ao excluir pré-matrícula');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Pendente': return 'warning';
@@ -209,10 +224,6 @@ const PreRegistrationManagement: React.FC<PreRegistrationManagementProps> = ({ o
                 <TableCell>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Email fontSize="small" />
-                      <Typography variant="caption">{preRegistration.email}</Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Phone fontSize="small" />
                       <Typography variant="caption">{preRegistration.phone}</Typography>
                     </Box>
@@ -256,6 +267,15 @@ const PreRegistrationManagement: React.FC<PreRegistrationManagementProps> = ({ o
                         </IconButton>
                       </Tooltip>
                     )}
+                    <Tooltip title="Excluir Pré-matrícula">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDelete(preRegistration)}
+                        color="error"
+                      >
+                        <Delete />
+                      </IconButton>
+                    </Tooltip>
                   </Box>
                 </TableCell>
               </TableRow>

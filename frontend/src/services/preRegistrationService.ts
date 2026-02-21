@@ -2,7 +2,6 @@ import api from './api';
 
 export interface MusicSchoolPreRegistrationRequest {
   name: string;
-  email: string;
   phone: string;
   birthDate?: string;
   parentName?: string;

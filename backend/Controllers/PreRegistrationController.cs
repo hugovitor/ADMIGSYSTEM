@@ -31,10 +31,12 @@ public class PreRegistrationController : ControllerBase
                 ? DateTime.SpecifyKind(request.BirthDate.Value, DateTimeKind.Utc)
                 : (DateTime?)null;
 
+            var generatedEmail = $"prereg-{Guid.NewGuid():N}@pre-matricula.local";
+
             var preRegistration = new MusicSchoolPreRegistration
             {
                 Name = request.Name,
-                Email = request.Email,
+                Email = generatedEmail,
                 Phone = request.Phone,
                 BirthDate = birthDate,
                 ParentName = request.ParentName,
