@@ -69,9 +69,11 @@ public class AuthController : ControllerBase
             Console.WriteLine($"Login error: {ex.Message}");
             Console.WriteLine($"Stack trace: {ex.StackTrace}");
             
+            var errorMessage = ex.InnerException?.Message ?? ex.Message;
             return StatusCode(500, new { 
-                message = "Erro interno do servidor", 
-                error = ex.Message 
+                message = "Erro ao processar login", 
+                error = errorMessage,
+                details = ex.GetType().Name
             });
         }
     }

@@ -25,12 +25,17 @@ public class PreRegistrationController : ControllerBase
     {
         try
         {
+            // Ensure all DateTimes are UTC to avoid PostgreSQL errors
+            var birthDate = request.BirthDate.HasValue 
+                ? DateTime.SpecifyKind(request.BirthDate.Value, DateTimeKind.Utc)
+                : (DateTime?)null;
+
             var preRegistration = new MusicSchoolPreRegistration
             {
                 Name = request.Name,
                 Email = request.Email,
                 Phone = request.Phone,
-                BirthDate = request.BirthDate,
+                BirthDate = birthDate,
                 ParentName = request.ParentName,
                 ParentEmail = request.ParentEmail,
                 ParentPhone = request.ParentPhone,
@@ -46,7 +51,7 @@ public class PreRegistrationController : ControllerBase
                 HasMusicalExperience = request.HasMusicalExperience,
                 MusicalExperience = request.MusicalExperience,
                 Questions = request.Questions,
-                PreRegistrationDate = DateTime.UtcNow,
+                PreRegistrationDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
                 Status = "Pendente",
                 IsProcessed = false
             };
@@ -93,7 +98,14 @@ public class PreRegistrationController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao criar pré-matrícula");
-            return StatusCode(500, new { message = "Erro interno do servidor." });
+            
+            // Retornar erro específico na resposta
+            var errorMessage = ex.InnerException?.Message ?? ex.Message;
+            return StatusCode(500, new { 
+                message = "Erro ao processar pré-matrícula.", 
+                error = errorMessage,
+                details = ex.GetType().Name
+            });
         }
     }
 
@@ -121,7 +133,8 @@ public class PreRegistrationController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao buscar instrumentos");
-            return StatusCode(500, new { message = "Erro interno do servidor." });
+            var errorMessage = ex.InnerException?.Message ?? ex.Message;
+            return StatusCode(500, new { message = "Erro ao buscar instrumentos.", error = errorMessage, details = ex.GetType().Name });
         }
     }
 
@@ -143,7 +156,8 @@ public class PreRegistrationController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao buscar níveis");
-            return StatusCode(500, new { message = "Erro interno do servidor." });
+            var errorMessage = ex.InnerException?.Message ?? ex.Message;
+            return StatusCode(500, new { message = "Erro ao buscar níveis.", error = errorMessage, details = ex.GetType().Name });
         }
     }
 
@@ -164,7 +178,8 @@ public class PreRegistrationController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erro ao buscar tipos de aula");
-            return StatusCode(500, new { message = "Erro interno do servidor." });
+            var errorMessage = ex.InnerException?.Message ?? ex.Message;
+            return StatusCode(500, new { message = "Erro ao buscar tipos de aula.", error = errorMessage, details = ex.GetType().Name });
         }
     }
 }
