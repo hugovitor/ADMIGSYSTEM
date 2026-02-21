@@ -35,8 +35,7 @@ public class AppDbContext : DbContext
             .IsUnique();
             
         modelBuilder.Entity<MusicSchoolPreRegistration>()
-            .HasIndex(m => m.Email)
-            .IsUnique();
+            .HasIndex(m => m.Email);
             
         modelBuilder.Entity<JiuJitsuStudent>()
             .HasIndex(j => j.Email)

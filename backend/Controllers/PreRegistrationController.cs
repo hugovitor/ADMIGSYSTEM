@@ -3,6 +3,7 @@ using ChurchManagement.DTOs;
 using ChurchManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace ChurchManagement.Controllers;
 
@@ -93,6 +94,15 @@ public class PreRegistrationController : ControllerBase
             return CreatedAtAction(null, new { id = response.Id }, new { 
                 message = "Pré-matrícula realizada com sucesso! Entraremos em contato em breve.", 
                 data = response 
+            });
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException pg && pg.SqlState == "23505")
+        {
+            _logger.LogWarning(ex, "Pré-matrícula duplicada para o email {Email}", request.Email);
+            return Conflict(new {
+                message = "Este email ja possui uma pre-matricula registrada.",
+                error = "duplicate_email",
+                details = "Unique constraint violation"
             });
         }
         catch (Exception ex)
